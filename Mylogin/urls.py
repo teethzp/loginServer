@@ -22,6 +22,7 @@ urlpatterns = [
 ]
 
 from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 import string
 import random
 from django.conf import settings
@@ -35,4 +36,18 @@ def mytask():
 	settings.SALT=salt
 	print settings.SALT
 
-sched.start()
+#sched.start()
+
+def tasktiming():
+	salt=''.join(random.sample(string.ascii_letters+string.digits,8))
+	print salt
+	settings.SALT=salt
+	print settings.SALT
+
+scheduler=BackgroundScheduler()
+scheduler.add_job(tasktiming,'interval',seconds=10)
+scheduler.start()
+
+
+
+
