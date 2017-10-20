@@ -122,3 +122,51 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 SALT="ABCDEFGH"
+
+## DEBUG ZP
+DEBUG=True
+LOGGING={
+	'version':1,
+	'disable_existing_loggers':False,
+	'filters':{
+		'require_debug_true':{
+			'()':'django.utils.log.RequireDebugTrue',
+		},
+	},
+	'formatters':{
+		'standard':{
+			'format':'%(levelname)s %(asctime)s %(pathname)s %(filename)s %(module)s %(funcName)s %(lineno)d: %(message)s'
+		},
+	},
+	'handlers':{
+		'mail_admins':{
+			'level':'ERROR',
+			'class':'django.utils.log.AdminEmailHandler',
+			'formatter':'standard'
+		},
+		'file_handler':{
+			'level':'DEBUG',
+			'class':'logging.handlers.TimedRotatingFileHandler',
+			'filename':'../admin.log',
+			'formatter':'standard'
+		},
+		'console':{
+			'level':'INFO',
+			'filters':['require_debug_true'],
+			'class':'logging.StreamHandler',
+			'formatter':'standard'
+		},
+	},
+	'loggers':{
+		'django':{
+			'handlers':['file_handler','console'],
+			'level':'DEBUG',
+			'propagate':True
+		},
+		'django.request':{
+			'handlers':['mail_admins'],
+			'level':'ERROR',
+			'propagate':False,
+		},
+	}
+}

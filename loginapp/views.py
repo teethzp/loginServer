@@ -14,15 +14,18 @@ from .serializers import UserinfoSerializer
 import time
 import hashlib
 from django.conf import settings
+
+import logging
 # Create your views here.
 
 @api_view(['GET','PUT'])
 def Userinfo_detail(request,pk):
+	logger=logging.getLogger("django")
 	try:
 		userinfo=Userinfo.objects.get(pk=pk)
 	except Userinfo.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
-	
+	logger.info("method of browers:"+request.method)
 	if request.method=='GET':
 #		serializer=UserinfoSerializer(userinfo)
 #		return Response(serializer.data)
@@ -38,10 +41,12 @@ def Userinfo_detail(request,pk):
 			passwd=serializer.data['password']
 			timestamp=serializer.data['timestamp']
 			print(serializer.data)
+			logger.info("data from browers"+serializer.data)
 			##verify timestamp!
 			tp_client=float(serializer.data['timestamp'])
 			tp_local=time.time()
 			if((tp_local-tp_client)>500):
+				logger.warning("time out!")
 				return Response(status=status.HTTP_400_BAD_REQUEST)
 			##verify timestamp successed!
 			##According username from browers get corresponding userinfo from database
@@ -49,6 +54,7 @@ def Userinfo_detail(request,pk):
 				userinfo_db=Userinfo.objects.get(username=name)
 				serializer_db=UserinfoSerializer(userinfo_db)
 			except Userinfo.DoesNotExist:
+				logger.warning("no corrding data from database")
 				return Response(status=status.HTTP_404_NOT_FOUND)
 			##Get MD5 passwd_db from database 
 			passwd_db=serializer_db.data['password']
@@ -58,8 +64,10 @@ def Userinfo_detail(request,pk):
 			pw_server=md5_.hexdigest() #get the encrypted string
 			##verify password with timestamp
 			if pw_server==passwd:
+				logger.info("login successed!")
 				return Response(status=status.HTTP_200_OK)
 			else:
+				logger.info("wrong name or password!")
 				return Response(status=status.HTTP_400_BAD_REQUEST)
 
 			#if Userinfo.objects.filter(username=name,password=passwd):
@@ -67,6 +75,7 @@ def Userinfo_detail(request,pk):
 			#else:	
 			#	return Response(status=status.HTTP_204_NO_CONTENT)
 		else:
+			logger.info("illleagal data!")
 			return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

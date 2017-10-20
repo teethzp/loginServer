@@ -45,7 +45,7 @@ def tasktiming():
 	print settings.SALT
 
 scheduler=BackgroundScheduler()
-scheduler.add_job(tasktiming,'interval',seconds=10)
+scheduler.add_job(tasktiming,'interval',seconds=100)
 scheduler.start()
 
 
